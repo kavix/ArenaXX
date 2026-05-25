@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TeamForm));
-            btnRunMatch = new Button();
+            btnAddTeam = new Button();
             lblSub = new Label();
             lblTitle = new Label();
             flowLayoutPanel1 = new FlowLayoutPanel();
@@ -48,19 +48,20 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
-            // btnRunMatch
+            // btnAddTeam
             // 
-            btnRunMatch.BackColor = Color.FromArgb(134, 114, 255);
-            btnRunMatch.FlatAppearance.BorderSize = 0;
-            btnRunMatch.FlatStyle = FlatStyle.Flat;
-            btnRunMatch.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnRunMatch.ForeColor = SystemColors.ControlLightLight;
-            btnRunMatch.Location = new Point(1387, 47);
-            btnRunMatch.Name = "btnRunMatch";
-            btnRunMatch.Size = new Size(136, 45);
-            btnRunMatch.TabIndex = 8;
-            btnRunMatch.Text = "Run Matches";
-            btnRunMatch.UseVisualStyleBackColor = false;
+            btnAddTeam.BackColor = Color.FromArgb(134, 114, 255);
+            btnAddTeam.FlatAppearance.BorderSize = 0;
+            btnAddTeam.FlatStyle = FlatStyle.Flat;
+            btnAddTeam.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnAddTeam.ForeColor = SystemColors.ControlLightLight;
+            btnAddTeam.Location = new Point(1386, 28);
+            btnAddTeam.Name = "btnAddTeam";
+            btnAddTeam.Size = new Size(154, 47);
+            btnAddTeam.TabIndex = 8;
+            btnAddTeam.Text = "Add Team";
+            btnAddTeam.UseVisualStyleBackColor = false;
+            btnAddTeam.Click += btnAddTeam_Click;
             // 
             // lblSub
             // 
@@ -98,6 +99,7 @@
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Size = new Size(1567, 608);
             flowLayoutPanel1.TabIndex = 9;
+            flowLayoutPanel1.Paint += flowLayoutPanel1_Paint;
             // 
             // pnlTeamCard
             // 
@@ -132,7 +134,6 @@
             btnApprove.TabIndex = 8;
             btnApprove.Text = "Approve";
             btnApprove.UseVisualStyleBackColor = false;
-            btnApprove.Click += btnApprove_Click;
             // 
             // btnReject
             // 
@@ -146,7 +147,6 @@
             btnReject.TabIndex = 7;
             btnReject.Text = "Reject";
             btnReject.UseVisualStyleBackColor = false;
-            btnReject.Click += btnReject_Click;
             // 
             // pictureBox1
             // 
@@ -164,7 +164,7 @@
             btnStatus.FlatAppearance.BorderSize = 0;
             btnStatus.FlatStyle = FlatStyle.Flat;
             btnStatus.ForeColor = Color.White;
-            btnStatus.Location = new Point(246, 19);
+            btnStatus.Location = new Point(407, 19);
             btnStatus.Name = "btnStatus";
             btnStatus.Size = new Size(94, 29);
             btnStatus.TabIndex = 6;
@@ -226,7 +226,7 @@
             BackColor = Color.FromArgb(3, 6, 23);
             ClientSize = new Size(1567, 689);
             Controls.Add(flowLayoutPanel1);
-            Controls.Add(btnRunMatch);
+            Controls.Add(btnAddTeam);
             Controls.Add(lblSub);
             Controls.Add(lblTitle);
             FormBorderStyle = FormBorderStyle.None;
@@ -241,7 +241,7 @@
         }
 
         #endregion
-        private Button btnRunMatch;
+        private Button btnAddTeam;
         private Label lblSub;
         private Label lblTitle;
         private FlowLayoutPanel flowLayoutPanel1;

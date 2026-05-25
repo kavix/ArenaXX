@@ -1,6 +1,6 @@
 ﻿namespace ArenaX.Forms
 {
-    partial class RobotForm
+    partial class TournamentsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,19 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RobotForm));
+            flwTournamentCard = new FlowLayoutPanel();
+            panel2 = new Panel();
             btnAddTeam = new Button();
             lblSub = new Label();
             lblTitle = new Label();
-            flwRobotCard = new FlowLayoutPanel();
-            panel2 = new Panel();
-            roboIcon = new PictureBox();
             panel1 = new Panel();
-            flwRobotCard.SuspendLayout();
-            panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)roboIcon).BeginInit();
+            flwTournamentCard.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
+            // 
+            // flwTournamentCard
+            // 
+            flwTournamentCard.BackColor = Color.FromArgb(7, 11, 34);
+            flwTournamentCard.Controls.Add(panel2);
+            flwTournamentCard.Location = new Point(41, 148);
+            flwTournamentCard.Name = "flwTournamentCard";
+            flwTournamentCard.Size = new Size(1509, 582);
+            flwTournamentCard.TabIndex = 12;
+            // 
+            // panel2
+            // 
+            panel2.Location = new Point(20, 20);
+            panel2.Margin = new Padding(20);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(641, 114);
+            panel2.TabIndex = 0;
             // 
             // btnAddTeam
             // 
@@ -49,7 +62,7 @@
             btnAddTeam.FlatStyle = FlatStyle.Flat;
             btnAddTeam.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnAddTeam.ForeColor = SystemColors.ControlLightLight;
-            btnAddTeam.Location = new Point(1225, 29);
+            btnAddTeam.Location = new Point(1242, 58);
             btnAddTeam.Name = "btnAddTeam";
             btnAddTeam.Size = new Size(191, 47);
             btnAddTeam.TabIndex = 11;
@@ -65,9 +78,9 @@
             lblSub.Location = new Point(0, 58);
             lblSub.Name = "lblSub";
             lblSub.Padding = new Padding(10, 0, 0, 0);
-            lblSub.Size = new Size(325, 23);
-            lblSub.TabIndex = 10;
-            lblSub.Text = "Register and manage competitor robots";
+            lblSub.Size = new Size(390, 23);
+            lblSub.TabIndex = 15;
+            lblSub.Text = "Create tournaments and auto-generate brackets";
             // 
             // lblTitle
             // 
@@ -79,65 +92,34 @@
             lblTitle.Location = new Point(0, 0);
             lblTitle.Name = "lblTitle";
             lblTitle.Padding = new Padding(10, 10, 0, 0);
-            lblTitle.Size = new Size(118, 58);
-            lblTitle.TabIndex = 9;
-            lblTitle.Text = "Robots";
-            // 
-            // flwRobotCard
-            // 
-            flwRobotCard.BackColor = Color.FromArgb(7, 11, 34);
-            flwRobotCard.Controls.Add(panel2);
-            flwRobotCard.Location = new Point(36, 133);
-            flwRobotCard.Name = "flwRobotCard";
-            flwRobotCard.Size = new Size(1420, 485);
-            flwRobotCard.TabIndex = 12;
-            // 
-            // panel2
-            // 
-            panel2.Controls.Add(roboIcon);
-            panel2.Location = new Point(20, 20);
-            panel2.Margin = new Padding(20);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(436, 178);
-            panel2.TabIndex = 0;
-            // 
-            // roboIcon
-            // 
-            roboIcon.Image = (Image)resources.GetObject("roboIcon.Image");
-            roboIcon.Location = new Point(31, 28);
-            roboIcon.Name = "roboIcon";
-            roboIcon.Size = new Size(47, 51);
-            roboIcon.SizeMode = PictureBoxSizeMode.StretchImage;
-            roboIcon.TabIndex = 0;
-            roboIcon.TabStop = false;
+            lblTitle.Size = new Size(202, 58);
+            lblTitle.TabIndex = 14;
+            lblTitle.Text = "Tournaments";
             // 
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(7, 11, 34);
-            panel1.Controls.Add(flwRobotCard);
+            panel1.Controls.Add(flwTournamentCard);
             panel1.Controls.Add(btnAddTeam);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(0, 81);
+            panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1491, 649);
-            panel1.TabIndex = 13;
+            panel1.Size = new Size(1582, 733);
+            panel1.TabIndex = 16;
             // 
-            // RobotForm
+            // TournamentsForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(3, 6, 23);
-            ClientSize = new Size(1491, 730);
-            Controls.Add(panel1);
+            ClientSize = new Size(1582, 733);
             Controls.Add(lblSub);
             Controls.Add(lblTitle);
-            ForeColor = Color.Cornsilk;
+            Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.None;
-            Name = "RobotForm";
-            Text = "RobotForm";
-            flwRobotCard.ResumeLayout(false);
-            panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)roboIcon).EndInit();
+            Name = "TournamentsForm";
+            Text = "TournamentsForm";
+            flwTournamentCard.ResumeLayout(false);
             panel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -145,12 +127,11 @@
 
         #endregion
 
+        private FlowLayoutPanel flwTournamentCard;
+        private Panel panel2;
         private Button btnAddTeam;
         private Label lblSub;
         private Label lblTitle;
-        private FlowLayoutPanel flwRobotCard;
         private Panel panel1;
-        private Panel panel2;
-        private PictureBox roboIcon;
     }
 }

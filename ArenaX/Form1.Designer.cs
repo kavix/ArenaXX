@@ -74,7 +74,7 @@
             slidePanel.Dock = DockStyle.Left;
             slidePanel.Location = new Point(0, 0);
             slidePanel.Name = "slidePanel";
-            slidePanel.Size = new Size(213, 1035);
+            slidePanel.Size = new Size(302, 1035);
             slidePanel.TabIndex = 0;
             // 
             // panel6
@@ -112,8 +112,8 @@
             matchBtn.TextAlign = ContentAlignment.MiddleLeft;
             matchBtn.UseVisualStyleBackColor = false;
             matchBtn.Click += matchBtn_Click;
-            matchBtn.MouseHover += matchBtn_MouseHover;
             matchBtn.MouseLeave += matchBtn_MouseLeave;
+            matchBtn.MouseHover += matchBtn_MouseHover;
             // 
             // panel5
             // 
@@ -150,8 +150,8 @@
             tournamentBtn.TextAlign = ContentAlignment.MiddleLeft;
             tournamentBtn.UseVisualStyleBackColor = false;
             tournamentBtn.Click += tournamentBtn_Click;
-            tournamentBtn.MouseHover += tournamentBtn_MouseHover;
             tournamentBtn.MouseLeave += tournamentBtn_MouseLeave;
+            tournamentBtn.MouseHover += tournamentBtn_MouseHover;
             // 
             // panel4
             // 
@@ -188,8 +188,8 @@
             robotBtn.TextAlign = ContentAlignment.MiddleLeft;
             robotBtn.UseVisualStyleBackColor = false;
             robotBtn.Click += robotBtn_Click;
-            robotBtn.MouseHover += robotBtn_MouseHover;
             robotBtn.MouseLeave += robotBtn_MouseLeave;
+            robotBtn.MouseHover += robotBtn_MouseHover;
             // 
             // panel3
             // 
@@ -226,8 +226,8 @@
             teamBtn.TextAlign = ContentAlignment.MiddleLeft;
             teamBtn.UseVisualStyleBackColor = false;
             teamBtn.Click += teamBtn_Click;
-            teamBtn.MouseHover += teamBtn_MouseHover;
             teamBtn.MouseLeave += teamBtn_MouseLeave;
+            teamBtn.MouseHover += teamBtn_MouseHover;
             // 
             // panel1
             // 
@@ -235,7 +235,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(213, 55);
+            panel1.Size = new Size(302, 72);
             panel1.TabIndex = 0;
             // 
             // pictureBox1
@@ -243,7 +243,7 @@
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
             pictureBox1.Location = new Point(3, 3);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(170, 51);
+            pictureBox1.Size = new Size(247, 66);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
@@ -283,17 +283,18 @@
             dashbaoardBtn.TextAlign = ContentAlignment.MiddleLeft;
             dashbaoardBtn.UseVisualStyleBackColor = false;
             dashbaoardBtn.Click += dashbaoardBtn_Click;
-            dashbaoardBtn.MouseHover += dashbaoardBtn_MouseHover;
             dashbaoardBtn.MouseLeave += dashbaoardBtn_MouseLeave;
+            dashbaoardBtn.MouseHover += dashbaoardBtn_MouseHover;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(25, 25, 25);
+            BackColor = Color.FromArgb(7, 11, 34);
             ClientSize = new Size(1773, 1035);
             Controls.Add(slidePanel);
             Font = new Font("Segoe UI", 10.8F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            ForeColor = Color.Coral;
             Margin = new Padding(3, 5, 3, 5);
             Name = "Form1";
             Text = "Dashboard";

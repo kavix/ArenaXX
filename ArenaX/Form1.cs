@@ -12,6 +12,8 @@ namespace ArenaX
         Form dashboard = new DashboardForm();
         Form team = new TeamForm();
         Form robot = new RobotForm();
+        Form tournament = new TournamentsForm();
+        Form match  = new MatchControlForm();
         public Form1()
         {
             InitializeComponent();
@@ -20,7 +22,10 @@ namespace ArenaX
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            dashboard.Dock = DockStyle.Fill;
+            dashboard.TopLevel = false;
+            dashboard.BringToFront();
+            dashboard.Show();
 
         }
         public void onclick(object sender, EventArgs e)
@@ -50,7 +55,12 @@ namespace ArenaX
                     case "teamBtn":
                         openChildForm(team);
                         break;
-
+                    case "tournamentBtn":
+                        openChildForm(tournament);
+                        break;
+                    case "matchBtn":
+                        openChildForm(match);
+                        break;
                     default:
                         break;
                 }
@@ -101,12 +111,12 @@ namespace ArenaX
 
         private void tournamentBtn_Click(object sender, EventArgs e)
         {
-
+            onclick(sender, e);
         }
 
         private void matchBtn_Click(object sender, EventArgs e)
         {
-
+            onclick(sender, e);
         }
 
         private void dashbaoardBtn_MouseHover(object sender, EventArgs e)
