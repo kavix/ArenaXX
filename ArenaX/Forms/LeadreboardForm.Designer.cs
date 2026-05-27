@@ -44,9 +44,9 @@
             lblSub.Location = new Point(0, 58);
             lblSub.Name = "lblSub";
             lblSub.Padding = new Padding(10, 0, 0, 0);
-            lblSub.Size = new Size(390, 23);
+            lblSub.Size = new Size(306, 23);
             lblSub.TabIndex = 17;
-            lblSub.Text = "Create tournaments and auto-generate brackets";
+            lblSub.Text = "Live rankings update with every result";
             // 
             // lblTitle
             // 
@@ -58,9 +58,9 @@
             lblTitle.Location = new Point(0, 0);
             lblTitle.Name = "lblTitle";
             lblTitle.Padding = new Padding(10, 10, 0, 0);
-            lblTitle.Size = new Size(202, 58);
+            lblTitle.Size = new Size(198, 58);
             lblTitle.TabIndex = 16;
-            lblTitle.Text = "Tournaments";
+            lblTitle.Text = "Leaderboard";
             // 
             // panel1
             // 
@@ -68,14 +68,15 @@
             panel1.Controls.Add(flwLeaderboard);
             panel1.Location = new Point(50, 132);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1075, 573);
+            panel1.Size = new Size(1111, 591);
             panel1.TabIndex = 18;
             // 
             // flwLeaderboard
             // 
+            flwLeaderboard.FlowDirection = FlowDirection.TopDown;
             flwLeaderboard.Location = new Point(39, 40);
             flwLeaderboard.Name = "flwLeaderboard";
-            flwLeaderboard.Size = new Size(987, 497);
+            flwLeaderboard.Size = new Size(1035, 497);
             flwLeaderboard.TabIndex = 0;
             // 
             // LeadreboardForm

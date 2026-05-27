@@ -8,16 +8,6 @@ using System.Windows.Forms;
 
 namespace ArenaX.Forms
 {
-    public class LeaderboardEntry
-    {
-        public string RobotName { get; set; }
-        public string TeamName { get; set; }
-        public int Wins { get; set; }
-        public int Draws { get; set; }
-        public int Losses { get; set; }
-        public int Points { get; set; }
-    }
-
     public partial class LeadreboardForm : Form
     {
         public LeadreboardForm()
@@ -47,7 +37,7 @@ namespace ArenaX.Forms
                 rowPanel.Size = new Size(1000, 70);
                 rowPanel.BackColor = rank == 1 ? Color.FromArgb(17, 21, 46) : Color.FromArgb(10, 12, 30);
                 rowPanel.Margin = new Padding(0, 0, 0, 10);
-                
+
                 rowPanel.Paint += (s, e) =>
                 {
                     ControlPaint.DrawBorder(e.Graphics, rowPanel.ClientRectangle, Color.FromArgb(41, 46, 73), ButtonBorderStyle.Solid);
@@ -66,14 +56,14 @@ namespace ArenaX.Forms
                 pbIcon.Size = new Size(30, 30);
                 pbIcon.Location = new Point(70, 20);
                 pbIcon.SizeMode = PictureBoxSizeMode.Zoom;
-                pbIcon.ImageLocation = rank == 1 ? "C:\\Users\\hp\\OneDrive - University of Kelaniya\\Desktop\\Projects\\ArenaX\\ArenaX\\Assets\\crown.png" : "C:\\Users\\hp\\OneDrive - University of Kelaniya\\Desktop\\Projects\\ArenaX\\ArenaX\\Assets\\trophy-score.png"; 
+                pbIcon.ImageLocation = rank == 1 ? "C:\\Users\\hp\\OneDrive - University of Kelaniya\\Desktop\\Projects\\ArenaX\\ArenaX\\Assets\\crown.png" : "C:\\Users\\hp\\OneDrive - University of Kelaniya\\Desktop\\Projects\\ArenaX\\ArenaX\\Assets\\trophy-score.png";
                 pbIcon.BackColor = Color.Transparent;
 
                 // Robot Name
                 Label lblRobot = new Label();
                 lblRobot.Text = entry.RobotName;
                 lblRobot.ForeColor = Color.White;
-                lblRobot.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+                lblRobot.Font = new Font("Segoe UI", 11, FontStyle.Bold);
                 lblRobot.AutoSize = true;
                 lblRobot.Location = new Point(120, 10);
 
@@ -87,7 +77,7 @@ namespace ArenaX.Forms
 
                 // Scores positioning
                 int startX = 800;
-                
+
                 Label lblWins = new Label();
                 lblWins.Text = $"{entry.Wins}W";
                 lblWins.ForeColor = Color.FromArgb(0, 255, 127); // Green
@@ -129,5 +119,16 @@ namespace ArenaX.Forms
                 rank++;
             }
         }
+
+    }
+
+    public class LeaderboardEntry
+    {
+        public string RobotName { get; set; }
+        public string TeamName { get; set; }
+        public int Wins { get; set; }
+        public int Draws { get; set; }
+        public int Losses { get; set; }
+        public int Points { get; set; }
     }
 }

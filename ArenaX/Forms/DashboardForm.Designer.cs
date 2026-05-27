@@ -412,7 +412,7 @@
             btnQcViewBracket.Padding = new Padding(10, 0, 0, 0);
             btnQcViewBracket.Size = new Size(251, 53);
             btnQcViewBracket.TabIndex = 4;
-            btnQcViewBracket.Text = "Vie bracket";
+            btnQcViewBracket.Text = "View bracket";
             btnQcViewBracket.TextAlign = ContentAlignment.MiddleLeft;
             btnQcViewBracket.UseVisualStyleBackColor = false;
             // 
