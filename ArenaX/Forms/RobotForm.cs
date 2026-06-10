@@ -6,32 +6,13 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using ArenaX.Data;
+using ArenaX.Models;
 
 namespace ArenaX.Forms
 {
     public partial class RobotForm : Form
     {
-        // Define a simple class to hold robot data
-        public class RobotData
-        {
-            public string Name { get; set; }
-            public string TeamName { get; set; }
-            public string Category { get; set; }
-            public string Weight { get; set; }
-            public string Description { get; set; }
-            public Image Icon { get; set; }
-        }
-
-        List<RobotData> robots = new List<RobotData>
-        {
-            new RobotData { Name = "Testing", TeamName = "TEst2", Category = "featherweight", Weight = "1kg", Description = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-            new RobotData { Name = "Smasher", TeamName = "Alpha Squad", Category = "heavyweight", Weight = "10kg", Description = "A powerful robot designed for smashing." },
-            new RobotData { Name = "Speedy", TeamName = "Beta Force", Category = "lightweight", Weight = "3kg", Description = "Very fast and agile robot." },
-            new RobotData { Name = "Defender", TeamName = "Gamma Legion", Category = "middleweight", Weight = "5kg", Description = "Specializes in defense and durability." },
-
-
-        };
-
         public RobotForm()
         {
             InitializeComponent();
@@ -40,16 +21,24 @@ namespace ArenaX.Forms
 
         private void LoadRobots()
         {
-            flwRobotCard.Controls.Clear(); // Clear the placeholder card
-
-            foreach (var robot in robots)
+            try
             {
-                Panel card = CreateRobotCard(robot);
-                flwRobotCard.Controls.Add(card);
+                var robots = DatabaseHelper.GetAllRobots();
+                flwRobotCard.Controls.Clear();
+
+                foreach (var robot in robots)
+                {
+                    Panel card = CreateRobotCard(robot);
+                    flwRobotCard.Controls.Add(card);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading robots: " + ex.Message);
             }
         }
 
-        private Panel CreateRobotCard(RobotData robot)
+        private Panel CreateRobotCard(RobotDetail robot)
         {
             // Create the main panel based on the image layout
             Panel panel = new Panel();
@@ -70,7 +59,13 @@ namespace ArenaX.Forms
             pnlImage.Location = new Point(25, 25);
 
 
-            string imagePath = @"C:\Users\hp\OneDrive - University of Kelaniya\Desktop\Projects\ArenaX\ArenaX\Assets\robotIcon.png";
+            string imagePath = System.IO.Path.Combine(Application.StartupPath, "Assets", "robotIcon.png");
+            // If running from bin/Debug/net10.0-windows, Assets might be up a few levels or copied to output
+            if (!System.IO.File.Exists(imagePath))
+            {
+                 // Fallback for development environment
+                 imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Assets", "robotIcon.png");
+            }
 
             if (System.IO.File.Exists(imagePath))
             {
@@ -78,10 +73,10 @@ namespace ArenaX.Forms
                 PictureBox pictureBox = new PictureBox();
                 pictureBox.BackColor = Color.FromArgb(7, 11, 34);
                 pictureBox.Image = icon;
-                pictureBox.SizeMode = PictureBoxSizeMode.Zoom; // Make sure the image scales to fit the space
+                pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
                 pictureBox.Height = 50;
                 pictureBox.Width = 50;
-                pictureBox.Location = new Point(0, 0); // Ensure it's positioned perfectly inside the panel
+                pictureBox.Location = new Point(0, 0);
                 pnlImage.Controls.Add(pictureBox);
             }
 
@@ -93,7 +88,7 @@ namespace ArenaX.Forms
             lblName.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             lblName.ForeColor = Color.White;
             lblName.Location = new Point(130, 20);
-            lblName.Text = robot.Name;
+            lblName.Text = robot.RobotName;
             panel.Controls.Add(lblName);
 
             // Team Name Label
@@ -119,14 +114,15 @@ namespace ArenaX.Forms
             panel.Controls.Add(btnCategory);
 
             // Weight Button/Badge
+            string weightText = robot.Weight.ToString("0.##") + "kg";
             Button btnWeight = new Button();
             btnWeight.FlatStyle = FlatStyle.Flat;
             btnWeight.FlatAppearance.BorderSize = 0;
             btnWeight.BackColor = Color.FromArgb(31, 38, 76);
             btnWeight.ForeColor = Color.White;
             btnWeight.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
-            btnWeight.Text = robot.Weight;
-            btnWeight.Size = new Size(TextRenderer.MeasureText(robot.Weight, btnWeight.Font).Width + 20, 35);
+            btnWeight.Text = weightText;
+            btnWeight.Size = new Size(TextRenderer.MeasureText(weightText, btnWeight.Font).Width + 20, 35);
             btnWeight.Location = new Point(btnCategory.Right + 10, 105);
 
             panel.Controls.Add(btnWeight);
@@ -145,9 +141,13 @@ namespace ArenaX.Forms
 
         private void btnRegisterTeam_Click(object sender, EventArgs e)
         {
-            Form regiterTeam = new RegisterRobot();
-
-            regiterTeam.ShowDialog();
+            using (var form = new RegisterRobot())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadRobots();
+                }
+            }
         }
     }
 }

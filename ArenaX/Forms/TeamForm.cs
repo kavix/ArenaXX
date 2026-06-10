@@ -6,29 +6,13 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using ArenaX.Data;
+using ArenaX.Models;
 
 namespace ArenaX.Forms
 {
     public partial class TeamForm : Form
     {
-
-        Form newTeam = new AddTeamForm();
-        public class TeamData
-        {
-            public string Name { get; set; }
-            public string CaptainName { get; set; }
-            public string Email { get; set; }
-            public string Description { get; set; }
-        }
-
-        List<TeamData> teams = new List<TeamData>
-        {
-            new TeamData { Name = "Alpha Squad", CaptainName = "John Doe", Email = "john@alpha.com", Description = "Balanced overall play style." },
-            new TeamData { Name = "Beta Force", CaptainName = "Jane Smith", Email = "jane@beta.org", Description = "Aggressive attackers." },
-            new TeamData { Name = "Gamma Legion", CaptainName = "Mike Johnson", Email = "mike@gamma.net", Description = "Defensive specialists." },
-            new TeamData { Name = "Alpha Squad", CaptainName = "John Doe", Email = "john@alpha.com", Description = "Balanced overall play style." },
-        };
-
         public TeamForm()
         {
             InitializeComponent();
@@ -38,26 +22,32 @@ namespace ArenaX.Forms
 
         private void LoadTeams()
         {
-            flowLayoutPanel1.Controls.Clear(); // Clear the placeholder card
-
-            foreach (var team in teams)
+            try
             {
-                Panel card = CreateTeamCard(team);
-                flowLayoutPanel1.Controls.Add(card);
+                var teams = DatabaseHelper.GetAllTeams();
+                flowLayoutPanel1.Controls.Clear();
+
+                foreach (var team in teams)
+                {
+                    Panel card = CreateTeamCard(team);
+                    flowLayoutPanel1.Controls.Add(card);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading teams: " + ex.Message);
             }
         }
 
-        private Panel CreateTeamCard(TeamData team)
+        private Panel CreateTeamCard(Team team)
         {
             // Create the main panel
             Panel panel = new Panel();
             panel.BackColor = Color.FromArgb(8, 12, 37);
-            panel.BorderStyle = BorderStyle.None; // Set to none to draw custom border
+            panel.BorderStyle = BorderStyle.None;
             panel.Size = new Size(516, 261);
             panel.Margin = new Padding(20);
 
-            // Custom border color
-            
             panel.Paint += (s, e) =>
             {
                 ControlPaint.DrawBorder(e.Graphics, panel.ClientRectangle, Color.FromArgb(41, 46, 73), ButtonBorderStyle.Solid);
@@ -69,7 +59,7 @@ namespace ArenaX.Forms
             lblName.Font = new Font("Candara", 13.8F, FontStyle.Bold);
             lblName.ForeColor = Color.White;
             lblName.Location = new Point(24, 17);
-            lblName.Text = team.Name;
+            lblName.Text = team.TeamName;
             panel.Controls.Add(lblName);
 
             // Captain Label Header
@@ -93,7 +83,7 @@ namespace ArenaX.Forms
             lblTeamEmail.AutoSize = true;
             lblTeamEmail.ForeColor = Color.White;
             lblTeamEmail.Location = new Point(33, 92);
-            lblTeamEmail.Text = team.Email;
+            lblTeamEmail.Text = team.CaptainEmail;
             panel.Controls.Add(lblTeamEmail);
 
             // Description Label
@@ -101,10 +91,10 @@ namespace ArenaX.Forms
             lblDesc.AutoSize = true;
             lblDesc.ForeColor = Color.White;
             lblDesc.Location = new Point(33, 124);
-            lblDesc.Text = team.Description;
+            lblDesc.Text = team.TeamDescription;
             panel.Controls.Add(lblDesc);
 
-            // Status Button (Hidden by default)
+            // Status Button
             Button btnTeamStatus = new Button();
             btnTeamStatus.BackColor = Color.Black;
             btnTeamStatus.FlatAppearance.BorderSize = 0;
@@ -112,7 +102,10 @@ namespace ArenaX.Forms
             btnTeamStatus.ForeColor = Color.White;
             btnTeamStatus.Location = new Point(390, 19);
             btnTeamStatus.Size = new Size(94, 29);
-            btnTeamStatus.Visible = false;
+            btnTeamStatus.Text = team.ApprovalStatus;
+            btnTeamStatus.Visible = team.ApprovalStatus != "Pending";
+            if (team.ApprovalStatus == "Approved") btnTeamStatus.BackColor = Color.FromArgb(114, 102, 255);
+            else if (team.ApprovalStatus == "Rejected") btnTeamStatus.BackColor = Color.FromArgb(249, 5, 43);
             panel.Controls.Add(btnTeamStatus);
 
             // Approve Button
@@ -126,9 +119,10 @@ namespace ArenaX.Forms
             btnApproveTeam.Location = new Point(24, 195);
             btnApproveTeam.Size = new Size(134, 41);
             btnApproveTeam.Text = "Approve";
+            btnApproveTeam.Visible = team.ApprovalStatus == "Pending";
             btnApproveTeam.Click += (s, e) =>
             {
-
+                // TODO: Update database status
                 btnApproveTeam.Visible = false;
                 btnRejectTeam.Visible = false;
                 btnTeamStatus.Visible = true;
@@ -145,8 +139,10 @@ namespace ArenaX.Forms
             btnRejectTeam.Location = new Point(172, 195);
             btnRejectTeam.Size = new Size(134, 41);
             btnRejectTeam.Text = "Reject";
+            btnRejectTeam.Visible = team.ApprovalStatus == "Pending";
             btnRejectTeam.Click += (s, e) =>
             {
+                // TODO: Update database status
                 btnApproveTeam.Visible = false;
                 btnRejectTeam.Visible = false;
                 btnTeamStatus.Visible = true;
@@ -158,15 +154,19 @@ namespace ArenaX.Forms
             return panel;
         }
 
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        private void btnAddTeam_Click(object sender, EventArgs e) 
         {
-
+            using (var form = new AddTeamForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadTeams();
+                }
+            }
         }
 
-        private void btnAddTeam_Click(object sender, EventArgs e) {
-
-            newTeam.ShowDialog();
-
+        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
         }
     }
 }

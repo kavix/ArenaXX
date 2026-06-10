@@ -1,0 +1,393 @@
+
+
+CREATE DATABASE IF NOT EXISTS ArenaXDB;
+USE ArenaXDB;
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS AuditLogs;
+DROP TABLE IF EXISTS EmailLogs;
+DROP TABLE IF EXISTS Scores;
+DROP TABLE IF EXISTS Matches;
+DROP TABLE IF EXISTS Robots;
+DROP TABLE IF EXISTS Teams;
+DROP TABLE IF EXISTS Tournaments;
+DROP TABLE IF EXISTS Users;
+SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE Users (
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
+    Username VARCHAR(50) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role VARCHAR(20) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    FullName VARCHAR(100),
+    IsActive BOOLEAN DEFAULT TRUE,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    LastLoginAt DATETIME,
+    LastPasswordChangeAt DATETIME,
+    CreatedBy INT,
+    ModifiedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    ModifiedBy INT,
+    CONSTRAINT FK_Users_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
+    CONSTRAINT CK_Users_Role CHECK (Role IN ('Admin', 'Judge', 'Operator'))
+);
+
+CREATE INDEX IX_Users_Username ON Users(Username);
+CREATE INDEX IX_Users_Email ON Users(Email);
+CREATE INDEX IX_Users_Role ON Users(Role);
+
+CREATE TABLE Tournaments (
+    TournamentID INT PRIMARY KEY AUTO_INCREMENT,
+    TournamentName VARCHAR(200) NOT NULL,
+    Description TEXT,
+    StartDate DATETIME NOT NULL,
+    EndDate DATETIME NOT NULL,
+    Status VARCHAR(20) NOT NULL DEFAULT 'Planning',
+    TournamentFormat VARCHAR(20) NOT NULL DEFAULT 'Knockout',
+    MaxTeams INT,
+    Location VARCHAR(200),
+    CreatedBy INT NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ModifiedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    ModifiedBy INT,
+    CONSTRAINT FK_Tournaments_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
+    CONSTRAINT CK_Tournaments_Status CHECK (Status IN ('Planning', 'Active', 'Paused', 'Completed', 'Cancelled')),
+    CONSTRAINT CK_Tournaments_TournamentFormat CHECK (TournamentFormat IN ('Knockout', 'RoundRobin', 'GroupStage'))
+);
+
+CREATE INDEX IX_Tournaments_Status ON Tournaments(Status);
+CREATE INDEX IX_Tournaments_StartDate ON Tournaments(StartDate);
+
+CREATE TABLE Teams (
+    TeamID INT PRIMARY KEY AUTO_INCREMENT,
+    TournamentID INT NOT NULL,
+    TeamName VARCHAR(100) NOT NULL,
+    University VARCHAR(150),
+    CaptainName VARCHAR(100) NOT NULL,
+    CaptainEmail VARCHAR(100) NOT NULL,
+    CaptainPhone VARCHAR(20),
+    ApprovalStatus VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    RegistrationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ApprovedDate DATETIME,
+    ApprovedBy INT,
+    RejectionReason VARCHAR(500),
+    TeamDescription TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ModifiedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT FK_Teams_Tournament FOREIGN KEY (TournamentID) REFERENCES Tournaments(TournamentID) ON DELETE CASCADE,
+    CONSTRAINT FK_Teams_ApprovedBy FOREIGN KEY (ApprovedBy) REFERENCES Users(UserID),
+    CONSTRAINT CK_Teams_ApprovalStatus CHECK (ApprovalStatus IN ('Pending', 'Approved', 'Rejected', 'Withdrawn'))
+);
+
+CREATE INDEX IX_Teams_TournamentID ON Teams(TournamentID);
+CREATE INDEX IX_Teams_ApprovalStatus ON Teams(ApprovalStatus);
+CREATE INDEX IX_Teams_University ON Teams(University);
+
+CREATE TABLE Robots (
+    RobotID INT PRIMARY KEY AUTO_INCREMENT,
+    TeamID INT NOT NULL,
+    RobotName VARCHAR(100) NOT NULL,
+    Weight DECIMAL(10, 2) NOT NULL,
+    Category VARCHAR(50) NOT NULL,
+    WeaponType VARCHAR(100),
+    Description TEXT,
+    IsApproved BOOLEAN DEFAULT FALSE,
+    ApprovedDate DATETIME,
+    ApprovedBy INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ModifiedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT FK_Robots_Team FOREIGN KEY (TeamID) REFERENCES Teams(TeamID) ON DELETE CASCADE,
+    CONSTRAINT FK_Robots_ApprovedBy FOREIGN KEY (ApprovedBy) REFERENCES Users(UserID),
+    CONSTRAINT CK_Robots_Weight CHECK (Weight > 0)
+);
+
+CREATE INDEX IX_Robots_TeamID ON Robots(TeamID);
+CREATE INDEX IX_Robots_Category ON Robots(Category);
+CREATE INDEX IX_Robots_IsApproved ON Robots(IsApproved);
+
+CREATE TABLE Matches (
+    MatchID INT PRIMARY KEY AUTO_INCREMENT,
+    TournamentID INT NOT NULL,
+    Round INT NOT NULL,
+    MatchNumber INT NOT NULL,
+    TeamA_ID INT NOT NULL,
+    TeamB_ID INT NOT NULL,
+    ScheduledTime DATETIME,
+    StartTime DATETIME,
+    EndTime DATETIME,
+    MatchStatus VARCHAR(20) NOT NULL DEFAULT 'Scheduled',
+    WinnerTeamID INT,
+    WinnerDetermined VARCHAR(20),
+    MatchNotes TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedBy INT,
+    ModifiedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    ModifiedBy INT,
+    CONSTRAINT FK_Matches_Tournament FOREIGN KEY (TournamentID) REFERENCES Tournaments(TournamentID) ON DELETE CASCADE,
+    CONSTRAINT FK_Matches_TeamA FOREIGN KEY (TeamA_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_Matches_TeamB FOREIGN KEY (TeamB_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_Matches_Winner FOREIGN KEY (WinnerTeamID) REFERENCES Teams(TeamID),
+    CONSTRAINT CK_Matches_DifferentTeams CHECK (TeamA_ID <> TeamB_ID),
+    CONSTRAINT CK_Matches_MatchStatus CHECK (MatchStatus IN ('Scheduled', 'InProgress', 'Paused', 'Completed', 'Cancelled')),
+    CONSTRAINT CK_Matches_WinnerDetermined CHECK (WinnerDetermined IN ('Judge', 'TechKnockout', 'Disqualification', 'ByeWin'))
+);
+
+CREATE INDEX IX_Matches_TournamentID ON Matches(TournamentID);
+CREATE INDEX IX_Matches_Status ON Matches(MatchStatus);
+CREATE INDEX IX_Matches_Round ON Matches(TournamentID, Round);
+CREATE INDEX IX_Matches_TeamA ON Matches(TeamA_ID);
+CREATE INDEX IX_Matches_TeamB ON Matches(TeamB_ID);
+
+CREATE TABLE Scores (
+    ScoreID INT PRIMARY KEY AUTO_INCREMENT,
+    MatchID INT NOT NULL,
+    JudgeID INT NOT NULL,
+    TeamID INT NOT NULL,
+    Points INT NOT NULL DEFAULT 0,
+    Penalties INT DEFAULT 0,
+    FinalScore INT,
+    ScoreNotes TEXT,
+    SubmittedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    SubmittedBy INT,
+    CONSTRAINT FK_Scores_Match FOREIGN KEY (MatchID) REFERENCES Matches(MatchID) ON DELETE CASCADE,
+    CONSTRAINT FK_Scores_Judge FOREIGN KEY (JudgeID) REFERENCES Users(UserID),
+    CONSTRAINT FK_Scores_Team FOREIGN KEY (TeamID) REFERENCES Teams(TeamID),
+    CONSTRAINT CK_Scores_Points CHECK (Points >= 0),
+    CONSTRAINT CK_Scores_Penalties CHECK (Penalties >= 0)
+);
+
+CREATE INDEX IX_Scores_MatchID ON Scores(MatchID);
+CREATE INDEX IX_Scores_JudgeID ON Scores(JudgeID);
+CREATE INDEX IX_Scores_TeamID ON Scores(TeamID);
+
+CREATE TABLE EmailLogs (
+    EmailID INT PRIMARY KEY AUTO_INCREMENT,
+    Recipient VARCHAR(100) NOT NULL,
+    Subject VARCHAR(255) NOT NULL,
+    Body TEXT,
+    SentDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    ErrorMessage TEXT,
+    EmailType VARCHAR(50),
+    RelatedEntityID INT,
+    RelatedEntityType VARCHAR(50),
+    SentBy INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT CK_EmailLogs_Status CHECK (Status IN ('Pending', 'Sent', 'Failed', 'Bounced')),
+    CONSTRAINT CK_EmailLogs_EmailType CHECK (EmailType IN ('Registration', 'Approval', 'MatchReminder', 'ScoreUpdate', 'Announcement'))
+);
+
+CREATE INDEX IX_EmailLogs_Status ON EmailLogs(Status);
+CREATE INDEX IX_EmailLogs_SentDate ON EmailLogs(SentDate);
+CREATE INDEX IX_EmailLogs_Recipient ON EmailLogs(Recipient);
+
+CREATE TABLE AuditLogs (
+    LogID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT NOT NULL,
+    Action VARCHAR(100) NOT NULL,
+    EntityType VARCHAR(50),
+    EntityID INT,
+    OldValue TEXT,
+    NewValue TEXT,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IPAddress VARCHAR(50),
+    Description TEXT,
+    CONSTRAINT FK_AuditLogs_User FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+CREATE INDEX IX_AuditLogs_UserID ON AuditLogs(UserID);
+CREATE INDEX IX_AuditLogs_Action ON AuditLogs(Action);
+CREATE INDEX IX_AuditLogs_Timestamp ON AuditLogs(Timestamp);
+CREATE INDEX IX_AuditLogs_EntityType ON AuditLogs(EntityType, EntityID);
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_GetMatchStatistics //
+CREATE PROCEDURE sp_GetMatchStatistics(IN p_TournamentID INT)
+BEGIN
+    SELECT 
+        COUNT(*) AS TotalMatches,
+        SUM(CASE WHEN MatchStatus = 'Completed' THEN 1 ELSE 0 END) AS CompletedMatches,
+        SUM(CASE WHEN MatchStatus = 'InProgress' THEN 1 ELSE 0 END) AS InProgressMatches,
+        SUM(CASE WHEN MatchStatus = 'Scheduled' THEN 1 ELSE 0 END) AS ScheduledMatches,
+        MAX(Round) AS TotalRounds
+    FROM Matches
+    WHERE TournamentID = p_TournamentID;
+END //
+
+DROP PROCEDURE IF EXISTS sp_GetTeamStatistics //
+CREATE PROCEDURE sp_GetTeamStatistics(IN p_TournamentID INT)
+BEGIN
+    SELECT 
+        COUNT(*) AS TotalTeams,
+        SUM(CASE WHEN ApprovalStatus = 'Approved' THEN 1 ELSE 0 END) AS ApprovedTeams,
+        SUM(CASE WHEN ApprovalStatus = 'Pending' THEN 1 ELSE 0 END) AS PendingTeams,
+        SUM(CASE WHEN ApprovalStatus = 'Rejected' THEN 1 ELSE 0 END) AS RejectedTeams
+    FROM Teams
+    WHERE TournamentID = p_TournamentID;
+END //
+
+DROP PROCEDURE IF EXISTS sp_GetLeaderboard //
+CREATE PROCEDURE sp_GetLeaderboard(IN p_TournamentID INT)
+BEGIN
+    SELECT 
+        ROW_NUMBER() OVER (ORDER BY COALESCE(stats.Wins, 0) DESC, COALESCE(stats.Losses, 0) ASC) AS `Rank`,
+        t.TeamID,
+        t.TeamName,
+        t.University,
+        COALESCE(stats.Wins, 0) AS Wins,
+        COALESCE(stats.Losses, 0) AS Losses,
+        COALESCE(stats.TotalPoints, 0) AS TotalPoints
+    FROM Teams t
+    LEFT JOIN (
+        SELECT 
+            WinnerTeamID AS TeamID,
+            COUNT(*) AS Wins,
+            0 AS Losses,
+            SUM(s.Points) AS TotalPoints
+        FROM Matches m
+        LEFT JOIN Scores s ON m.MatchID = s.MatchID
+        WHERE m.TournamentID = p_TournamentID AND m.MatchStatus = 'Completed'
+        GROUP BY WinnerTeamID
+    ) stats ON t.TeamID = stats.TeamID
+    WHERE t.TournamentID = p_TournamentID AND t.ApprovalStatus = 'Approved'
+    ORDER BY Wins DESC, Losses ASC
+    LIMIT 100;
+END //
+
+DROP PROCEDURE IF EXISTS sp_GetAverageScores //
+CREATE PROCEDURE sp_GetAverageScores(IN p_MatchID INT)
+BEGIN
+    SELECT 
+        TeamID,
+        AVG(CAST(Points AS DECIMAL(10,2))) AS AveragePoints,
+        AVG(CAST(Penalties AS DECIMAL(10,2))) AS AveragePenalties,
+        COUNT(DISTINCT JudgeID) AS JudgeCount
+    FROM Scores
+    WHERE MatchID = p_MatchID
+    GROUP BY TeamID;
+END //
+
+DROP PROCEDURE IF EXISTS sp_LogAuditAction //
+CREATE PROCEDURE sp_LogAuditAction(
+    IN p_UserID INT,
+    IN p_Action VARCHAR(100),
+    IN p_EntityType VARCHAR(50),
+    IN p_EntityID INT,
+    IN p_OldValue TEXT,
+    IN p_NewValue TEXT,
+    IN p_Description TEXT
+)
+BEGIN
+    INSERT INTO AuditLogs (
+        UserID,
+        Action,
+        EntityType,
+        EntityID,
+        OldValue,
+        NewValue,
+        Description,
+        Timestamp
+    ) VALUES (
+        p_UserID,
+        p_Action,
+        p_EntityType,
+        p_EntityID,
+        p_OldValue,
+        p_NewValue,
+        p_Description,
+        UTC_TIMESTAMP()
+    );
+END //
+
+DELIMITER ;
+
+INSERT INTO Users (
+    Username, 
+    PasswordHash, 
+    Role, 
+    Email, 
+    FullName, 
+    IsActive,
+    CreatedAt
+) VALUES
+('admin', 
+ 'PBKDF2_V1$10000$7MFy92cPB6pubETqDsPdCIc67BRNr+IYHKoVpcOaQw1VByrGysfZjVew/hw+AGoPJDdmaDUBaohHfDcg8Synsg==',
+ 'Admin', 
+ 'admin@arenax.com', 
+ 'System Administrator',
+ TRUE,
+ UTC_TIMESTAMP()),
+('judge1', 
+ 'PBKDF2_V1$10000$2Ga6EbT5WrHn+eKRPbrw3KwhGrXigRTT7+GAc8fOf8FV9EsRN4J32oV26dKQBmhvYlujmkmjPLF6bPIpXqJyrA==',
+ 'Judge', 
+ 'judge1@arenax.com', 
+ 'Judge One',
+ TRUE,
+ UTC_TIMESTAMP()),
+('operator1', 
+ 'PBKDF2_V1$10000$61ndfBHacMbW4oIdHbbJ7eRQPszfoxGdkZQhTe+/CpGHjVAbqfDshh3w0KRkhS3fCYe7QslrKpIui9VRBrPx0g==',
+ 'Operator', 
+ 'operator1@arenax.com', 
+ 'Operator One',
+ TRUE,
+ UTC_TIMESTAMP());
+
+INSERT INTO Tournaments (
+    TournamentName,
+    Description,
+    StartDate,
+    EndDate,
+    Status,
+    TournamentFormat,
+    MaxTeams,
+    Location,
+    CreatedBy
+) VALUES (
+    'College Robot Battle Championship 2024',
+    'Annual robot battle tournament featuring teams from top engineering universities',
+    '2024-04-01 09:00:00',
+    '2024-04-15 18:00:00',
+    'Planning',
+    'Knockout',
+    32,
+    'Convention Center, Downtown',
+    1
+);
+
+INSERT INTO Teams (
+    TournamentID,
+    TeamName,
+    University,
+    CaptainName,
+    CaptainEmail,
+    CaptainPhone,
+    ApprovalStatus,
+    RegistrationDate
+) VALUES
+(1, 'Tech Titans', 'MIT', 'John Smith', 'john@mit.edu', '555-0001', 'Approved', UTC_TIMESTAMP()),
+(1, 'Robo Warriors', 'Stanford', 'Jane Doe', 'jane@stanford.edu', '555-0002', 'Approved', UTC_TIMESTAMP()),
+(1, 'Circuit Breakers', 'Caltech', 'Bob Johnson', 'bob@caltech.edu', '555-0003', 'Approved', UTC_TIMESTAMP()),
+(1, 'Iron Engineers', 'CMU', 'Alice Brown', 'alice@cmu.edu', '555-0004', 'Pending', UTC_TIMESTAMP());
+
+INSERT INTO Robots (
+    TeamID,
+    RobotName,
+    Weight,
+    Category,
+    WeaponType,
+    Description,
+    IsApproved
+) VALUES
+(1, 'Titanium X9', 50.5, 'Heavyweight', 'Spinning Disc', 'Advanced spinner with reinforced chassis', TRUE),
+(2, 'Warrior Alpha', 48.2, 'Heavyweight', 'Flipper', 'Pneumatic flipper system', TRUE),
+(3, 'Circuit Storm', 52.0, 'Heavyweight', 'Drum', 'Rotating drum weapon', TRUE),
+(4, 'Iron Fist', 49.8, 'Heavyweight', 'Hammer', 'Hydraulic hammer mechanism', FALSE);
+
+UPDATE Teams 
+SET ApprovedDate = UTC_TIMESTAMP(), ApprovedBy = 1
+WHERE ApprovalStatus = 'Approved';
+
+UPDATE Robots
+SET ApprovedDate = UTC_TIMESTAMP(), ApprovedBy = 1
+WHERE IsApproved = TRUE;

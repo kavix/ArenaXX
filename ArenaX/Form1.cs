@@ -1,4 +1,5 @@
 using ArenaX.Forms;
+using ArenaX.Models;
 using System.Security.Cryptography;
 using System.Security.Policy;
 
@@ -21,7 +22,10 @@ namespace ArenaX
         public Form1()
         {
             InitializeComponent();
-
+            if (UserSession.CurrentUser != null)
+            {
+                lblUserName.Text = UserSession.CurrentUser.FullName ?? UserSession.CurrentUser.Username;
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)

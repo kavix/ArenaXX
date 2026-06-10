@@ -5,6 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using ArenaX.Data;
+using ArenaX.Models;
 
 namespace ArenaX.Forms.SubForm
 {
@@ -68,7 +70,50 @@ namespace ArenaX.Forms.SubForm
         }
         private void btnRegister_Click(object sender, EventArgs e)
         {
+            if (cbxTeam.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a team.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            string name = tbxRobotName.Text.Trim();
+            string category = cbxCategory.SelectedItem?.ToString() ?? "";
+            string weightStr = tbxWeight.Text.Trim();
+            string specs = tbxSpecs.Text.Trim();
+
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(weightStr))
+            {
+                MessageBox.Show("Please fill in Robot Name and Weight.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!decimal.TryParse(weightStr, out decimal weight))
+            {
+                MessageBox.Show("Please enter a valid weight.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var team = (Team)cbxTeam.SelectedItem;
+
+            var robot = new Robot
+            {
+                TeamID = team.TeamID,
+                RobotName = name,
+                Category = category,
+                Weight = weight,
+                Description = specs
+            };
+
+            if (DatabaseHelper.AddRobot(robot))
+            {
+                MessageBox.Show("Robot registered successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show("Failed to register robot.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -81,6 +126,23 @@ namespace ArenaX.Forms.SubForm
             string[] category = { "featherweight (<= 1.5kg)", "lightweight ( <= 5.4kg)", "heavyweight (<= 10kg)" };
             cbxCategory.Items.AddRange(category);
             cbxCategory.SelectedIndex = 0;
+
+            LoadTeams();
+        }
+
+        private void LoadTeams()
+        {
+            try
+            {
+                var teams = DatabaseHelper.GetAllTeams();
+                cbxTeam.DataSource = teams;
+                cbxTeam.DisplayMember = "TeamName";
+                cbxTeam.ValueMember = "TeamID";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading teams: " + ex.Message);
+            }
         }
     }
 }
